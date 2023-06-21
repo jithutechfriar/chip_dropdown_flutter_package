@@ -1,4 +1,5 @@
 library chip_dropdown;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -260,8 +261,12 @@ class _ChipDropdownState extends State<ChipDropdown> {
                         // Hide input text field if the selection mode is single selection and one item is selected
                         visible: !(widget.isMultiselectionMode == false && selectedItems.length == 1),
                         child: TextField(
-                          decoration:
-                              InputDecoration(hintText: setTextFieldHint(), border: InputBorder.none, hintStyle: const TextStyle(fontSize: 12)),
+                          cursorColor: Colors.grey,
+                          decoration: InputDecoration(
+                            hintText: setTextFieldHint(),
+                            border: InputBorder.none,
+                            hintStyle: const TextStyle(fontSize: 12),
+                          ),
                           controller: textEditingController,
                           onTap: () {
                             // Prevent multiple overlays from showing at the same time.
