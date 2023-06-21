@@ -47,7 +47,7 @@ class ChipDropdown extends StatefulWidget {
   }
 
   Function(List<int> selectedItems)? onChanged;
-  Function(int selectedItemId)? onSelection;
+  Function(int? selectedItemId)? onSelection;
   final List<ChipDropdownItem> items;
   final double? width;
   bool isMultiselectionMode = false;
@@ -235,6 +235,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                               updateOverlayState();
                               setState(() {});
                               if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
+                              if (widget.onSelection != null) widget.onSelection!(null);
                             },
                             icon: const Icon(
                               Icons.close,
