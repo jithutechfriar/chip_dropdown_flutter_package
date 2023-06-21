@@ -4,7 +4,7 @@ version: 0.0.4
 homepage: https://github.com/jithutechfriar/chip_dropdown_flutter_package.git
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
+  sdk: '>=2.19.2 <3.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
