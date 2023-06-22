@@ -3,6 +3,8 @@ library chip_dropdown;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'globals.dart';
+
 /// README
 /// - This widget has two `setSate()` properties
 /// -- 1. To update widget => setSate()
@@ -79,14 +81,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
   OverlayEntry? overlayEntry;
   late OverlayState overlayState;
 
-  // OLD CODE
-  // To check if the widget is loaded for the first time
-  // Set as false to open up popup dialog by default
-  // bool isInitialLoad = true;
-
-  // To check if the widget is clicked by the user
-  bool isWidgetClickedByTheUser = false;
-
   // Overlay refresh will take place after the build of last frame in `addPostFrameCallback()`
   // toggle this varible to set overlay refresh.
   bool needOverlayRefresh = true;
@@ -106,13 +100,14 @@ class _ChipDropdownState extends State<ChipDropdown> {
   @override
   void dispose() {
     removeOverlayEntry();
+    isWidgetCurrenltyActive = false;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isWidgetClickedByTheUser && needOverlayRefresh) {
+      if (isWidgetCurrenltyActive && needOverlayRefresh) {
         // Remove existing overylay and add new overylay with the latest data.
         refreshOverlayEntry();
       }
@@ -184,7 +179,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
         if (overlayEntry == null) {
           showOverlay(context);
         }
-        isWidgetClickedByTheUser = true;
+        isWidgetCurrenltyActive = true;
       },
       child: Padding(
         padding: EdgeInsets.all(widgetPadding),
@@ -236,6 +231,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                               if (widget.isMultiselectionMode == false) filterItems('');
 
                               updateOverlayState();
+                              isWidgetCurrenltyActive=true;
                               setState(() {});
                               if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
                               if (widget.onSelection != null) widget.onSelection!(null);
@@ -277,7 +273,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                             if (overlayEntry == null) {
                               showOverlay(context);
                             }
-                            isWidgetClickedByTheUser = true;
+                            isWidgetCurrenltyActive = true;
                           },
                           onChanged: (value) {
                             filterItems(value);
@@ -362,6 +358,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
           constraints: const BoxConstraints(),
           onPressed: () {
             removeOverlayEntry();
+            isWidgetCurrenltyActive=false;
           },
           icon: const Icon(
             Icons.close,
