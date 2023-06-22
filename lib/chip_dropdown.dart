@@ -79,9 +79,13 @@ class _ChipDropdownState extends State<ChipDropdown> {
   OverlayEntry? overlayEntry;
   late OverlayState overlayState;
 
+  // OLD CODE
   // To check if the widget is loaded for the first time
   // Set as false to open up popup dialog by default
-  bool isInitialLoad = true;
+  // bool isInitialLoad = true;
+
+  // To check if the widget is clicked by the user
+  bool isWidgetClickedByTheUser = false;
 
   // Overlay refresh will take place after the build of last frame in `addPostFrameCallback()`
   // toggle this varible to set overlay refresh.
@@ -108,11 +112,9 @@ class _ChipDropdownState extends State<ChipDropdown> {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isInitialLoad == false && needOverlayRefresh) {
+      if (isWidgetClickedByTheUser && needOverlayRefresh) {
         // Remove existing overylay and add new overylay with the latest data.
         refreshOverlayEntry();
-      } else {
-        isInitialLoad = false;
       }
     });
     return WillPopScope(
@@ -182,6 +184,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
         if (overlayEntry == null) {
           showOverlay(context);
         }
+        isWidgetClickedByTheUser = true;
       },
       child: Padding(
         padding: EdgeInsets.all(widgetPadding),
@@ -274,6 +277,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                             if (overlayEntry == null) {
                               showOverlay(context);
                             }
+                            isWidgetClickedByTheUser = true;
                           },
                           onChanged: (value) {
                             filterItems(value);
