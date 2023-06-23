@@ -289,7 +289,10 @@ class _ChipDropdownState extends State<ChipDropdown> {
               visible: selectedItems.isEmpty,
               child: const Padding(
                 padding: EdgeInsets.only(right: 5),
-                child: Icon(Icons.keyboard_arrow_down,color: Colors.grey,),
+                child: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.grey,
+                ),
               ),
             ),
           ],
