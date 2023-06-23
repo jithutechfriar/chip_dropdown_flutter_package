@@ -122,7 +122,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
           children: [
             Expanded(
               child: Container(
-                margin: const EdgeInsets.all(5),
                 decoration: widget.widgetDecoration ??
                     const BoxDecoration(
                       color: Colors.white,
