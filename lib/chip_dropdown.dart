@@ -231,7 +231,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                               if (widget.isMultiselectionMode == false) filterItems('');
 
                               updateOverlayState();
-                              isWidgetCurrenltyActive=true;
+                              isWidgetCurrenltyActive = true;
                               setState(() {});
                               if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
                               if (widget.onSelection != null) widget.onSelection!(null);
@@ -358,7 +358,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
           constraints: const BoxConstraints(),
           onPressed: () {
             removeOverlayEntry();
-            isWidgetCurrenltyActive=false;
+            isWidgetCurrenltyActive = false;
           },
           icon: const Icon(
             Icons.close,
@@ -493,7 +493,13 @@ class _ChipDropdownState extends State<ChipDropdown> {
   handleInputErrors() {
     /// To check if the initial value of `Single selection chip dropdown` is present in items list.
     if (widget.initialValue != null) {
-      assert(widget.items.contains(widget.initialValue), 'Initial value must be present in the dropdown items list');
+      bool isFound = false;
+      for (var item in widget.items) {
+        if (item.id == widget.initialValue!.id && item.title == widget.initialValue!.title && item.imageUrl == widget.initialValue!.imageUrl) {
+          isFound = true;
+        }
+      }
+      assert(isFound, 'Initial value must be present in the dropdown items list');
     }
 
     /// To check if the initial values of `Multi selection chip dropdown` is present in items list.
@@ -505,9 +511,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
             isFound = true;
           }
         }
-        if (!isFound) {
-          assert(false, 'Initial values must be present in the dropdown items list');
-        }
+        assert(isFound, 'Initial values must be present in the dropdown items list');
       }
     }
   }
