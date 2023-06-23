@@ -48,8 +48,8 @@ class ChipDropdown extends StatefulWidget {
     isMultiselectionMode = true;
   }
 
-  Function(List<String> selectedItems)? onChanged;
-  Function(String? selectedItemId)? onSelection;
+  Function(List<int> selectedItems)? onChanged;
+  Function(int? selectedItemId)? onSelection;
   final List<ChipDropdownItem> items;
   final double? width;
   bool isMultiselectionMode = false;
@@ -523,7 +523,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
 // Model class to accept input values.
 class ChipDropdownItem {
   const ChipDropdownItem({required this.id, required this.title, this.imageUrl});
-  final String id;
+  final int id;
   final String title;
   final String? imageUrl;
 }
