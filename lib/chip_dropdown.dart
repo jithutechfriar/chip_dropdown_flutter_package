@@ -49,7 +49,7 @@ class ChipDropdown extends StatefulWidget {
   }
 
   Function(List<String> selectedItems)? onChanged;
-  Function(String? selectedItemId)? onSelection;
+  Function(String selectedItemId)? onSelection;
   final List<ChipDropdownItem> items;
   final double? width;
   bool isMultiselectionMode = false;
@@ -234,7 +234,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                               isWidgetCurrenltyActive = true;
                               setState(() {});
                               if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
-                              if (widget.onSelection != null) widget.onSelection!(null);
+                              if (widget.onSelection != null) widget.onSelection!("");
                             },
                             icon: const Icon(
                               Icons.close,
