@@ -3,8 +3,6 @@ library chip_dropdown;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'globals.dart';
-
 /// README
 /// - This widget has two `setSate()` properties
 /// -- 1. To update widget => setSate()
@@ -85,6 +83,8 @@ class _ChipDropdownState extends State<ChipDropdown> {
   // toggle this varible to set overlay refresh.
   bool needOverlayRefresh = true;
 
+  bool isInitialLoad = true;
+
   @override
   void initState() {
     super.initState();
@@ -108,10 +108,11 @@ class _ChipDropdownState extends State<ChipDropdown> {
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // if (isWidgetCurrenltyActive && needOverlayRefresh) {
-      if (needOverlayRefresh) {
+      if (isInitialLoad == false && needOverlayRefresh) {
         // Remove existing overylay and add new overylay with the latest data.
         refreshOverlayEntry();
       }
+      isInitialLoad=true;
     });
     return WillPopScope(
         onWillPop: () async {
