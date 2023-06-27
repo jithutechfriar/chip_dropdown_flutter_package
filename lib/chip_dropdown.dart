@@ -19,22 +19,26 @@ import 'package:flutter/services.dart';
 /// -- [onChanged] => For single onSelection callback. Returns ids of selected items as a list.
 
 class ChipDropdown extends StatefulWidget {
-  ChipDropdown(
-      {super.key,
-      required this.items,
-      required this.onSelection,
-      this.width,
-      this.hint,
-      this.initialValue,
-      this.widgetDecoration,
-      this.dropdownDecoration,
-      this.chipMargin,
-      this.chipPadding,
-      this.chipFontSize});
+  ChipDropdown({
+    super.key,
+    required this.items,
+    this.onSelection,
+    this.onSelectionAsItem,
+    this.width,
+    this.hint,
+    this.initialValue,
+    this.widgetDecoration,
+    this.dropdownDecoration,
+    this.chipMargin,
+    this.chipPadding,
+    this.chipFontSize,
+    this.errorText,
+  });
   ChipDropdown.multiselection(
       {super.key,
       required this.items,
-      required this.onChanged,
+      this.onChanged,
+      this.onChangedAsItem,
       this.width,
       this.hint,
       this.initialValues,
@@ -42,12 +46,15 @@ class ChipDropdown extends StatefulWidget {
       this.dropdownDecoration,
       this.chipMargin,
       this.chipPadding,
-      this.chipFontSize}) {
+      this.chipFontSize,
+      this.errorText}) {
     isMultiselectionMode = true;
   }
 
   Function(List<String> selectedItems)? onChanged;
+  Function(List<ChipDropdownItem> selectedItems)? onChangedAsItem;
   Function(String selectedItemId)? onSelection;
+  Function(ChipDropdownItem? selectedItemId)? onSelectionAsItem;
   final List<ChipDropdownItem> items;
   final double? width;
   bool isMultiselectionMode = false;
@@ -59,6 +66,7 @@ class ChipDropdown extends StatefulWidget {
   final double? chipPadding;
   final double? chipMargin;
   final double? chipFontSize;
+  final String? errorText;
 
   @override
   State<ChipDropdown> createState() => _ChipDropdownState();
@@ -182,122 +190,137 @@ class _ChipDropdownState extends State<ChipDropdown> {
         }
         // isWidgetCurrenltyActive = true;
       },
-      child: Padding(
-        padding: EdgeInsets.all(widgetPadding),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.start,
-                children: [
-                  for (int i = 0; i < selectedItems.length; i++)
-                    Container(
-                      margin: EdgeInsets.all(widget.chipMargin ?? 2),
-                      padding: EdgeInsets.all(widget.chipPadding ?? 8),
-                      decoration: const BoxDecoration(
-                        color: Color(0xffeeeeee),
-                        borderRadius: BorderRadius.all(Radius.circular(30)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          selectedItems[i].imageUrl != null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: Image.network(
-                                    selectedItems[i].imageUrl!,
-                                    width: 30,
-                                    height: 30,
-                                    fit: BoxFit.fill,
-                                  ),
-                                )
-                              : const SizedBox(),
-                          const SizedBox(
-                            width: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(widgetPadding),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Wrap(
+                    alignment: WrapAlignment.start,
+                    children: [
+                      for (int i = 0; i < selectedItems.length; i++)
+                        Container(
+                          margin: EdgeInsets.all(widget.chipMargin ?? 2),
+                          padding: EdgeInsets.all(widget.chipPadding ?? 8),
+                          decoration: const BoxDecoration(
+                            color: Color(0xffeeeeee),
+                            borderRadius: BorderRadius.all(Radius.circular(30)),
                           ),
-                          Text(
-                            selectedItems[i].title,
-                            style: TextStyle(fontSize: widget.chipFontSize),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              selectedItems[i].imageUrl != null
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(15),
+                                      child: Image.network(
+                                        selectedItems[i].imageUrl!,
+                                        width: 30,
+                                        height: 30,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    )
+                                  : const SizedBox(),
+                              const SizedBox(
+                                width: 2,
+                              ),
+                              Text(
+                                selectedItems[i].title,
+                                style: TextStyle(fontSize: widget.chipFontSize),
+                              ),
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: () {
+                                  filteredItems.add(selectedItems[i]);
+                                  selectedItems.remove(selectedItems[i]);
+
+                                  // Clear input field and update popup items with unfiltered data
+                                  textEditingController.clear();
+                                  if (widget.isMultiselectionMode == false) filterItems('');
+
+                                  updateOverlayState();
+                                  isWidgetCurrenltyActive = true;
+                                  setState(() {});
+                                  widget.isMultiselectionMode ? onMultiSeletionChipRemove() : onSingleSelectionChipRemove();
+                                },
+                                icon: const Icon(
+                                  Icons.close,
+                                ),
+                              )
+                            ],
                           ),
-                          IconButton(
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            onPressed: () {
-                              filteredItems.add(selectedItems[i]);
-                              selectedItems.remove(selectedItems[i]);
-
-                              // Clear input field and update popup items with unfiltered data
-                              textEditingController.clear();
-                              if (widget.isMultiselectionMode == false) filterItems('');
-
+                        ),
+                      SizedBox(
+                        width: 100,
+                        child: RawKeyboardListener(
+                          focusNode: focusNode,
+                          onKey: (value) {
+                            if (value.runtimeType.toString() == 'RawKeyUpEvent' && value.logicalKey == LogicalKeyboardKey.backspace) {
+                              if (selectedItems.isEmpty) return;
+                              filteredItems.add(selectedItems.last);
+                              selectedItems.removeLast();
                               updateOverlayState();
-                              // isWidgetCurrenltyActive = true;
                               setState(() {});
-                              if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
-                              if (widget.onSelection != null) widget.onSelection!("");
-                            },
-                            icon: const Icon(
-                              Icons.close,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  SizedBox(
-                    width: 100,
-                    child: RawKeyboardListener(
-                      focusNode: focusNode,
-                      onKey: (value) {
-                        if (value.runtimeType.toString() == 'RawKeyUpEvent' && value.logicalKey == LogicalKeyboardKey.backspace) {
-                          if (selectedItems.isEmpty) return;
-                          filteredItems.add(selectedItems.last);
-                          selectedItems.removeLast();
-                          updateOverlayState();
-                          setState(() {});
-                          if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
-                        }
-                      },
-                      child: Visibility(
-                        // Hide input text field if the selection mode is single selection and one item is selected
-                        visible: !(widget.isMultiselectionMode == false && selectedItems.length == 1),
-                        child: TextField(
-                          cursorColor: Colors.grey,
-                          decoration: InputDecoration(
-                            hintText: setTextFieldHint(),
-                            border: InputBorder.none,
-                            hintStyle: const TextStyle(fontSize: 12),
-                          ),
-                          controller: textEditingController,
-                          onTap: () {
-                            // Prevent multiple overlays from showing at the same time.
-                            if (overlayEntry == null) {
-                              showOverlay(context);
+                              onChangedCallback();
                             }
-                            // isWidgetCurrenltyActive = true;
                           },
-                          onChanged: (value) {
-                            filterItems(value);
-                          },
+                          child: Visibility(
+                            // Hide input text field if the selection mode is single selection and one item is selected
+                            visible: !(widget.isMultiselectionMode == false && selectedItems.length == 1),
+                            child: TextField(
+                              cursorColor: Colors.grey,
+                              decoration: InputDecoration(
+                                hintText: setTextFieldHint(),
+                                border: InputBorder.none,
+                                hintStyle: const TextStyle(fontSize: 12),
+                              ),
+                              controller: textEditingController,
+                              onTap: () {
+                                // Prevent multiple overlays from showing at the same time.
+                                if (overlayEntry == null) {
+                                  showOverlay(context);
+                                }
+                                isWidgetCurrenltyActive = true;
+                              },
+                              onChanged: (value) {
+                                filterItems(value);
+                              },
+                            ),
+                          ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                Visibility(
+                  visible: selectedItems.isEmpty,
+                  child: const Padding(
+                    padding: EdgeInsets.only(right: 5),
+                    child: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Colors.grey,
                     ),
                   ),
-                ],
-              ),
-            ),
-            Visibility(
-              visible: selectedItems.isEmpty,
-              child: const Padding(
-                padding: EdgeInsets.only(right: 5),
-                child: Icon(
-                  Icons.keyboard_arrow_down,
-                  color: Colors.grey,
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+          if (widget.errorText != null) errorWidget()
+        ],
+      ),
+    );
+  }
+
+  Widget errorWidget() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        widget.errorText!,
+        style: const TextStyle(color: Colors.red),
       ),
     );
   }
@@ -431,7 +454,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
     needOverlayRefresh = false;
     setState(() {});
     removeOverlayEntry();
-    if (widget.onSelection != null) widget.onSelection!(selectedItems.first.id);
+    onSelectionCallback();
   }
 
   // Handle onTap of overlay item for `MultiSelection` widget
@@ -445,7 +468,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
     setState(() {});
     updateOverlayState();
-    if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
+    onChangedCallback();
   }
 
   // Replace current popup and add new one.
@@ -493,6 +516,18 @@ class _ChipDropdownState extends State<ChipDropdown> {
     }
   }
 
+  // onTap of remove button in chip for singleSelection
+  onSingleSelectionChipRemove() {
+    if (widget.onSelection != null) widget.onSelection!('');
+    if (widget.onSelectionAsItem != null) widget.onSelectionAsItem!(null);
+  }
+
+  // onTap of remove button in chip for multiSelection
+  onMultiSeletionChipRemove() {
+    onChangedCallback();
+    onSelectionCallback();
+  }
+
   // Check if the widget has received the necessary data to work properly.
   handleInputErrors() {
     /// To check if the initial value of `Single selection chip dropdown` is present in items list.
@@ -517,6 +552,26 @@ class _ChipDropdownState extends State<ChipDropdown> {
         }
         assert(isFound, 'Initial values must be present in the dropdown items list');
       }
+    }
+  }
+
+  /// To return onChanged values
+  onChangedCallback() {
+    if (widget.onChanged != null) {
+      widget.onChanged!(selectedItems.map((e) => e.id).toList());
+    }
+    if (widget.onChangedAsItem != null) {
+      widget.onChangedAsItem!(selectedItems);
+    }
+  }
+
+  /// To return onSelection values
+  onSelectionCallback() {
+    if (widget.onSelection != null) {
+      widget.onSelection!(selectedItems.first.id);
+    }
+    if (widget.onSelectionAsItem != null) {
+      widget.onSelectionAsItem!(selectedItems.first);
     }
   }
 }
