@@ -19,12 +19,6 @@ import 'globals.dart';
 /// - Multi selection widget can be accessed by the [ChipDropdown.multiselection] constructor.
 /// -- [initialValues] => For single initial value. Accepts list of [ChipDropdownItem] values.
 /// -- [onChanged] => For single onSelection callback. Returns ids of selected items as a list.
-///
-
-enum ChipDropdownReturnType {
-  id, // return ids only
-  item // return ChipDropdownItem
-}
 
 class ChipDropdown extends StatefulWidget {
   ChipDropdown({
@@ -40,7 +34,6 @@ class ChipDropdown extends StatefulWidget {
     this.chipMargin,
     this.chipPadding,
     this.chipFontSize,
-    this.returnType = ChipDropdownReturnType.id,
   });
   ChipDropdown.multiselection({
     super.key,
@@ -55,7 +48,6 @@ class ChipDropdown extends StatefulWidget {
     this.chipMargin,
     this.chipPadding,
     this.chipFontSize,
-    this.returnType = ChipDropdownReturnType.id,
   }) {
     isMultiselectionMode = true;
   }
@@ -75,7 +67,6 @@ class ChipDropdown extends StatefulWidget {
   final double? chipPadding;
   final double? chipMargin;
   final double? chipFontSize;
-  final ChipDropdownReturnType returnType;
 
   @override
   State<ChipDropdown> createState() => _ChipDropdownState();
