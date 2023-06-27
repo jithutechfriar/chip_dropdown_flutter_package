@@ -30,7 +30,8 @@ class ChipDropdown extends StatefulWidget {
   ChipDropdown({
     super.key,
     required this.items,
-    required this.onSelection,
+    this.onSelection,
+    this.onSelectionAsItem,
     this.width,
     this.hint,
     this.initialValue,
@@ -44,7 +45,8 @@ class ChipDropdown extends StatefulWidget {
   ChipDropdown.multiselection({
     super.key,
     required this.items,
-    required this.onChanged,
+    this.onChanged,
+    this.onChangedAsItem,
     this.width,
     this.hint,
     this.initialValues,
@@ -58,8 +60,10 @@ class ChipDropdown extends StatefulWidget {
     isMultiselectionMode = true;
   }
 
-  Function(dynamic selectedItems)? onChanged;
-  Function(dynamic selectedItemId)? onSelection;
+  Function(List<String> selectedItems)? onChanged;
+  Function(List<ChipDropdownItem> selectedItems)? onChangedAsItem;
+  Function(String selectedItemId)? onSelection;
+  Function(ChipDropdownItem? selectedItemId)? onSelectionAsItem;
   final List<ChipDropdownItem> items;
   final double? width;
   bool isMultiselectionMode = false;
@@ -243,8 +247,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                               updateOverlayState();
                               isWidgetCurrenltyActive = true;
                               setState(() {});
-                              returnOnChanged();
-                              if (widget.onSelection != null) widget.onSelection!("");
+                              widget.isMultiselectionMode ? onMultiSeletionChipRemove() : onSingleSelectionChipRemove();
                             },
                             icon: const Icon(
                               Icons.close,
@@ -264,7 +267,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                           selectedItems.removeLast();
                           updateOverlayState();
                           setState(() {});
-                          returnOnChanged();
+                          onChangedCallback();
                         }
                       },
                       child: Visibility(
@@ -440,7 +443,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
     needOverlayRefresh = false;
     setState(() {});
     removeOverlayEntry();
-    if (widget.onSelection != null) widget.onSelection!(selectedItems.first.id);
+    onSelectionCallback();
   }
 
   // Handle onTap of overlay item for `MultiSelection` widget
@@ -454,7 +457,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
     setState(() {});
     updateOverlayState();
-    returnOnChanged();
+    onChangedCallback();
   }
 
   // Replace current popup and add new one.
@@ -502,6 +505,16 @@ class _ChipDropdownState extends State<ChipDropdown> {
     }
   }
 
+  onSingleSelectionChipRemove() {
+    if (widget.onSelection != null) widget.onSelection!('');
+    if (widget.onSelectionAsItem != null) widget.onSelectionAsItem!(null);
+  }
+
+  onMultiSeletionChipRemove() {
+    onChangedCallback();
+    onSelectionCallback();
+  }
+
   // Check if the widget has received the necessary data to work properly.
   handleInputErrors() {
     /// To check if the initial value of `Single selection chip dropdown` is present in items list.
@@ -529,15 +542,23 @@ class _ChipDropdownState extends State<ChipDropdown> {
     }
   }
 
-  /// To return onChanged values based on [returnType]
-  returnOnChanged() {
+  /// To return onChanged values
+  onChangedCallback() {
     if (widget.onChanged != null) {
-      if (widget.returnType == ChipDropdownReturnType.id) {
-        widget.onChanged!(selectedItems.map((e) => e.id).toList());
-      }
-      else if(widget.returnType == ChipDropdownReturnType.item){
-        widget.onChanged!(selectedItems);
-      }
+      widget.onChanged!(selectedItems.map((e) => e.id).toList());
+    }
+    if (widget.onChangedAsItem != null) {
+      widget.onChangedAsItem!(selectedItems);
+    }
+  }
+
+  /// To return onSelection values
+  onSelectionCallback() {
+    if (widget.onSelection != null) {
+      widget.onSelection!(selectedItems.first.id);
+    }
+    if (widget.onSelectionAsItem != null) {
+      widget.onSelectionAsItem!(selectedItems.first);
     }
   }
 }
