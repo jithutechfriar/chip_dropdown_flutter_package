@@ -19,37 +19,47 @@ import 'globals.dart';
 /// - Multi selection widget can be accessed by the [ChipDropdown.multiselection] constructor.
 /// -- [initialValues] => For single initial value. Accepts list of [ChipDropdownItem] values.
 /// -- [onChanged] => For single onSelection callback. Returns ids of selected items as a list.
+///
+
+enum ChipDropdownReturnType {
+  id, // return ids only
+  item // return ChipDropdownItem
+}
 
 class ChipDropdown extends StatefulWidget {
-  ChipDropdown(
-      {super.key,
-      required this.items,
-      required this.onSelection,
-      this.width,
-      this.hint,
-      this.initialValue,
-      this.widgetDecoration,
-      this.dropdownDecoration,
-      this.chipMargin,
-      this.chipPadding,
-      this.chipFontSize});
-  ChipDropdown.multiselection(
-      {super.key,
-      required this.items,
-      required this.onChanged,
-      this.width,
-      this.hint,
-      this.initialValues,
-      this.widgetDecoration,
-      this.dropdownDecoration,
-      this.chipMargin,
-      this.chipPadding,
-      this.chipFontSize}) {
+  ChipDropdown({
+    super.key,
+    required this.items,
+    required this.onSelection,
+    this.width,
+    this.hint,
+    this.initialValue,
+    this.widgetDecoration,
+    this.dropdownDecoration,
+    this.chipMargin,
+    this.chipPadding,
+    this.chipFontSize,
+    this.returnType = ChipDropdownReturnType.id,
+  });
+  ChipDropdown.multiselection({
+    super.key,
+    required this.items,
+    required this.onChanged,
+    this.width,
+    this.hint,
+    this.initialValues,
+    this.widgetDecoration,
+    this.dropdownDecoration,
+    this.chipMargin,
+    this.chipPadding,
+    this.chipFontSize,
+    this.returnType = ChipDropdownReturnType.id,
+  }) {
     isMultiselectionMode = true;
   }
 
-  Function(List<String> selectedItems)? onChanged;
-  Function(String selectedItemId)? onSelection;
+  Function(dynamic selectedItems)? onChanged;
+  Function(dynamic selectedItemId)? onSelection;
   final List<ChipDropdownItem> items;
   final double? width;
   bool isMultiselectionMode = false;
@@ -61,6 +71,7 @@ class ChipDropdown extends StatefulWidget {
   final double? chipPadding;
   final double? chipMargin;
   final double? chipFontSize;
+  final ChipDropdownReturnType returnType;
 
   @override
   State<ChipDropdown> createState() => _ChipDropdownState();
@@ -232,7 +243,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                               updateOverlayState();
                               isWidgetCurrenltyActive = true;
                               setState(() {});
-                              if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
+                              returnOnChanged();
                               if (widget.onSelection != null) widget.onSelection!("");
                             },
                             icon: const Icon(
@@ -253,7 +264,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                           selectedItems.removeLast();
                           updateOverlayState();
                           setState(() {});
-                          if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
+                          returnOnChanged();
                         }
                       },
                       child: Visibility(
@@ -443,7 +454,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
     setState(() {});
     updateOverlayState();
-    if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
+    returnOnChanged();
   }
 
   // Replace current popup and add new one.
@@ -514,6 +525,18 @@ class _ChipDropdownState extends State<ChipDropdown> {
           }
         }
         assert(isFound, 'Initial values must be present in the dropdown items list');
+      }
+    }
+  }
+
+  /// To return onChanged values based on [returnType]
+  returnOnChanged() {
+    if (widget.onChanged != null) {
+      if (widget.returnType == ChipDropdownReturnType.id) {
+        widget.onChanged!(selectedItems.map((e) => e.id).toList());
+      }
+      else if(widget.returnType == ChipDropdownReturnType.item){
+        widget.onChanged!(selectedItems);
       }
     }
   }
