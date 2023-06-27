@@ -496,11 +496,13 @@ class _ChipDropdownState extends State<ChipDropdown> {
     }
   }
 
+  // onTap of remove button in chip for singleSelection
   onSingleSelectionChipRemove() {
     if (widget.onSelection != null) widget.onSelection!('');
     if (widget.onSelectionAsItem != null) widget.onSelectionAsItem!(null);
   }
 
+  // onTap of remove button in chip for multiSelection
   onMultiSeletionChipRemove() {
     onChangedCallback();
     onSelectionCallback();
