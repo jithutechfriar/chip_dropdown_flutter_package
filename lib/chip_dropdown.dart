@@ -21,35 +21,41 @@ import 'globals.dart';
 /// -- [onChanged] => For single onSelection callback. Returns ids of selected items as a list.
 
 class ChipDropdown extends StatefulWidget {
-  ChipDropdown(
-      {super.key,
-      required this.items,
-      required this.onSelection,
-      this.width,
-      this.hint,
-      this.initialValue,
-      this.widgetDecoration,
-      this.dropdownDecoration,
-      this.chipMargin,
-      this.chipPadding,
-      this.chipFontSize});
-  ChipDropdown.multiselection(
-      {super.key,
-      required this.items,
-      required this.onChanged,
-      this.width,
-      this.hint,
-      this.initialValues,
-      this.widgetDecoration,
-      this.dropdownDecoration,
-      this.chipMargin,
-      this.chipPadding,
-      this.chipFontSize}) {
+  ChipDropdown({
+    super.key,
+    required this.items,
+    this.onSelection,
+    this.onSelectionAsItem,
+    this.width,
+    this.hint,
+    this.initialValue,
+    this.widgetDecoration,
+    this.dropdownDecoration,
+    this.chipMargin,
+    this.chipPadding,
+    this.chipFontSize,
+  });
+  ChipDropdown.multiselection({
+    super.key,
+    required this.items,
+    this.onChanged,
+    this.onChangedAsItem,
+    this.width,
+    this.hint,
+    this.initialValues,
+    this.widgetDecoration,
+    this.dropdownDecoration,
+    this.chipMargin,
+    this.chipPadding,
+    this.chipFontSize,
+  }) {
     isMultiselectionMode = true;
   }
 
   Function(List<String> selectedItems)? onChanged;
+  Function(List<ChipDropdownItem> selectedItems)? onChangedAsItem;
   Function(String selectedItemId)? onSelection;
+  Function(ChipDropdownItem? selectedItemId)? onSelectionAsItem;
   final List<ChipDropdownItem> items;
   final double? width;
   bool isMultiselectionMode = false;
@@ -232,8 +238,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                               updateOverlayState();
                               isWidgetCurrenltyActive = true;
                               setState(() {});
-                              if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
-                              if (widget.onSelection != null) widget.onSelection!("");
+                              widget.isMultiselectionMode ? onMultiSeletionChipRemove() : onSingleSelectionChipRemove();
                             },
                             icon: const Icon(
                               Icons.close,
@@ -253,7 +258,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                           selectedItems.removeLast();
                           updateOverlayState();
                           setState(() {});
-                          if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
+                          onChangedCallback();
                         }
                       },
                       child: Visibility(
@@ -429,7 +434,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
     needOverlayRefresh = false;
     setState(() {});
     removeOverlayEntry();
-    if (widget.onSelection != null) widget.onSelection!(selectedItems.first.id);
+    onSelectionCallback();
   }
 
   // Handle onTap of overlay item for `MultiSelection` widget
@@ -443,7 +448,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
     setState(() {});
     updateOverlayState();
-    if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
+    onChangedCallback();
   }
 
   // Replace current popup and add new one.
@@ -491,6 +496,18 @@ class _ChipDropdownState extends State<ChipDropdown> {
     }
   }
 
+  // onTap of remove button in chip for singleSelection
+  onSingleSelectionChipRemove() {
+    if (widget.onSelection != null) widget.onSelection!('');
+    if (widget.onSelectionAsItem != null) widget.onSelectionAsItem!(null);
+  }
+
+  // onTap of remove button in chip for multiSelection
+  onMultiSeletionChipRemove() {
+    onChangedCallback();
+    onSelectionCallback();
+  }
+
   // Check if the widget has received the necessary data to work properly.
   handleInputErrors() {
     /// To check if the initial value of `Single selection chip dropdown` is present in items list.
@@ -515,6 +532,26 @@ class _ChipDropdownState extends State<ChipDropdown> {
         }
         assert(isFound, 'Initial values must be present in the dropdown items list');
       }
+    }
+  }
+
+  /// To return onChanged values
+  onChangedCallback() {
+    if (widget.onChanged != null) {
+      widget.onChanged!(selectedItems.map((e) => e.id).toList());
+    }
+    if (widget.onChangedAsItem != null) {
+      widget.onChangedAsItem!(selectedItems);
+    }
+  }
+
+  /// To return onSelection values
+  onSelectionCallback() {
+    if (widget.onSelection != null) {
+      widget.onSelection!(selectedItems.first.id);
+    }
+    if (widget.onSelectionAsItem != null) {
+      widget.onSelectionAsItem!(selectedItems.first);
     }
   }
 }
