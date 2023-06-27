@@ -100,14 +100,15 @@ class _ChipDropdownState extends State<ChipDropdown> {
   @override
   void dispose() {
     removeOverlayEntry();
-    isWidgetCurrenltyActive = false;
+    // isWidgetCurrenltyActive = false;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isWidgetCurrenltyActive && needOverlayRefresh) {
+      // if (isWidgetCurrenltyActive && needOverlayRefresh) {
+      if (needOverlayRefresh) {
         // Remove existing overylay and add new overylay with the latest data.
         refreshOverlayEntry();
       }
@@ -178,7 +179,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
         if (overlayEntry == null) {
           showOverlay(context);
         }
-        isWidgetCurrenltyActive = true;
+        // isWidgetCurrenltyActive = true;
       },
       child: Padding(
         padding: EdgeInsets.all(widgetPadding),
@@ -230,7 +231,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                               if (widget.isMultiselectionMode == false) filterItems('');
 
                               updateOverlayState();
-                              isWidgetCurrenltyActive = true;
+                              // isWidgetCurrenltyActive = true;
                               setState(() {});
                               if (widget.onChanged != null) widget.onChanged!(selectedItems.map((e) => e.id).toList());
                               if (widget.onSelection != null) widget.onSelection!("");
@@ -272,7 +273,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                             if (overlayEntry == null) {
                               showOverlay(context);
                             }
-                            isWidgetCurrenltyActive = true;
+                            // isWidgetCurrenltyActive = true;
                           },
                           onChanged: (value) {
                             filterItems(value);
@@ -360,7 +361,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
           constraints: const BoxConstraints(),
           onPressed: () {
             removeOverlayEntry();
-            isWidgetCurrenltyActive = false;
+            // isWidgetCurrenltyActive = false;
           },
           icon: const Icon(
             Icons.close,
