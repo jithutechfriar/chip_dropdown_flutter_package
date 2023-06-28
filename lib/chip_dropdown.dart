@@ -34,22 +34,21 @@ class ChipDropdown extends StatefulWidget {
     this.chipMargin,
     this.chipPadding,
     this.chipFontSize,
-    this.errorText,
   });
-  ChipDropdown.multiselection(
-      {super.key,
-      required this.items,
-      this.onChanged,
-      this.onChangedAsItem,
-      this.width,
-      this.hint,
-      this.initialValues,
-      this.widgetDecoration,
-      this.dropdownDecoration,
-      this.chipMargin,
-      this.chipPadding,
-      this.chipFontSize,
-      this.errorText}) {
+  ChipDropdown.multiselection({
+    super.key,
+    required this.items,
+    this.onChanged,
+    this.onChangedAsItem,
+    this.width,
+    this.hint,
+    this.initialValues,
+    this.widgetDecoration,
+    this.dropdownDecoration,
+    this.chipMargin,
+    this.chipPadding,
+    this.chipFontSize,
+  }) {
     isMultiselectionMode = true;
   }
 
@@ -68,7 +67,6 @@ class ChipDropdown extends StatefulWidget {
   final double? chipPadding;
   final double? chipMargin;
   final double? chipFontSize;
-  final String? errorText;
 
   @override
   State<ChipDropdown> createState() => _ChipDropdownState();
@@ -126,28 +124,22 @@ class _ChipDropdownState extends State<ChipDropdown> {
           removeOverlayEntry();
           return true;
         },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: widget.widgetDecoration ??
-                        const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                    // `CompositedTransformTarget` used to track a widget's position while scrolling
-                    child: CompositedTransformTarget(
-                      link: layerLink,
-                      child: mainWidget(),
+            Expanded(
+              child: Container(
+                decoration: widget.widgetDecoration ??
+                    const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
-                  ),
+                // `CompositedTransformTarget` used to track a widget's position while scrolling
+                child: CompositedTransformTarget(
+                  link: layerLink,
+                  child: mainWidget(),
                 ),
-              ],
+              ),
             ),
-            if (widget.errorText != null) errorWidget()
           ],
         ));
   }
@@ -308,19 +300,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget errorWidget() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        widget.errorText!,
-        style: const TextStyle(
-          fontSize: 12,
-          color: Colors.red,
         ),
       ),
     );
