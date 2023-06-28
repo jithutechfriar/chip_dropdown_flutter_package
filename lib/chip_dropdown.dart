@@ -34,6 +34,7 @@ class ChipDropdown extends StatefulWidget {
     this.chipMargin,
     this.chipPadding,
     this.chipFontSize,
+    this.hintStyle,
   });
   ChipDropdown.multiselection({
     super.key,
@@ -48,6 +49,7 @@ class ChipDropdown extends StatefulWidget {
     this.chipMargin,
     this.chipPadding,
     this.chipFontSize,
+    this.hintStyle,
   }) {
     isMultiselectionMode = true;
   }
@@ -67,6 +69,7 @@ class ChipDropdown extends StatefulWidget {
   final double? chipPadding;
   final double? chipMargin;
   final double? chipFontSize;
+  final TextStyle? hintStyle;
 
   @override
   State<ChipDropdown> createState() => _ChipDropdownState();
@@ -269,7 +272,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                           decoration: InputDecoration(
                             hintText: setTextFieldHint(),
                             border: InputBorder.none,
-                            hintStyle: const TextStyle(fontSize: 12),
+                            hintStyle: widget.hintStyle ?? const TextStyle(fontSize: 12),
                           ),
                           controller: textEditingController,
                           onTap: () {
