@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 library chip_dropdown;
 
 import 'package:flutter/material.dart';
@@ -162,6 +164,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
             showWhenUnlinked: false,
             offset: Offset(popupMenuLeftPadding, size.height + 5),
             child: Material(
+              color: Colors.transparent,
               child: StatefulBuilder(
                 builder: (context, setState) {
                   overlaySetState = setState;
