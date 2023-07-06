@@ -81,7 +81,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
   // Customizable properties
   double popupMenuItemPadding = 8;
   double popupMenuLeftPadding = 5;
-  double widgetPadding = 8;
+  double mainWidgetPadding = 8;
 
   final layerLink = LayerLink();
   List<ChipDropdownItem> selectedItems = [];
@@ -95,6 +95,9 @@ class _ChipDropdownState extends State<ChipDropdown> {
   // Overlay refresh will take place after the build of last frame in `addPostFrameCallback()`
   // toggle this varible to set overlay refresh.
   bool needOverlayRefresh = true;
+
+  // Size of overlay entry
+  late Size overlaySize;
 
   @override
   void initState() {
@@ -152,17 +155,17 @@ class _ChipDropdownState extends State<ChipDropdown> {
   void showOverlay(BuildContext context) async {
     overlayState = Overlay.of(context);
     final renderbox = context.findRenderObject() as RenderBox;
-    final size = renderbox.size;
+    overlaySize = renderbox.size;
 
     overlayEntry = OverlayEntry(
       builder: (context) {
         return Positioned(
           // TODO: Need improvement in setting width of overlay as same as that of widget.
-          width: widget.width ?? (size.width - (widgetPadding + (popupMenuLeftPadding * 2))),
+          width: widget.width ?? (overlaySize.width),
           child: CompositedTransformFollower(
             link: layerLink,
             showWhenUnlinked: false,
-            offset: Offset(popupMenuLeftPadding, size.height + 5),
+            offset: Offset(0, overlaySize.height + 5),
             child: Material(
               color: Colors.transparent,
               child: StatefulBuilder(
@@ -193,7 +196,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
         isWidgetCurrenltyActive = true;
       },
       child: Padding(
-        padding: EdgeInsets.all(widgetPadding),
+        padding: EdgeInsets.all(mainWidgetPadding),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -415,12 +418,16 @@ class _ChipDropdownState extends State<ChipDropdown> {
                     ),
                   )
                 : const SizedBox(),
-            const SizedBox(
-              width: 2,
-            ),
-            Text(
-              item.title,
-              style: const TextStyle(fontSize: 12),
+            const SizedBox(),
+            SizedBox(
+              // Reduce [popupMenuItemPadding] from both sides
+              width: overlaySize.width - (popupMenuItemPadding * 2),
+              child: Text(
+                item.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12),
+              ),
             ),
           ],
         ),
