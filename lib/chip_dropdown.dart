@@ -161,7 +161,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
       builder: (context) {
         return Positioned(
           // TODO: Need improvement in setting width of overlay as same as that of widget.
-          // width: widget.width ?? (overlaySize.width - (mainWidgetPadding + (popupMenuLeftPadding * 2))),
           width: widget.width ?? (overlaySize.width),
           child: CompositedTransformFollower(
             link: layerLink,
@@ -419,12 +418,16 @@ class _ChipDropdownState extends State<ChipDropdown> {
                     ),
                   )
                 : const SizedBox(),
-            const SizedBox(
-              width: 2,
-            ),
-            Text(
-              item.title,
-              style: const TextStyle(fontSize: 12),
+            const SizedBox(),
+            SizedBox(
+              // Reduce [popupMenuItemPadding] from both sides
+              width: overlaySize.width - (popupMenuItemPadding * 2),
+              child: Text(
+                item.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12),
+              ),
             ),
           ],
         ),
