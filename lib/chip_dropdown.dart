@@ -78,10 +78,20 @@ class ChipDropdown extends StatefulWidget {
 }
 
 class _ChipDropdownState extends State<ChipDropdown> {
-  // Customizable properties
+  /// Customizable properties
+  ///
+
   double popupMenuItemPadding = 8;
-  double popupMenuLeftPadding = 5;
+  // All side padding of main widget
   double mainWidgetPadding = 8;
+  // All side margin of single chip
+  double chipMargin = 2;
+  // All side padding of single chip
+  double chipPadding = 8;
+  // Size of close icon in single chip
+  double chipCloseIconSize = 24;
+  // Gap between image and title in chip
+  double chipImageAndTitleGap = 2;
 
   final layerLink = LayerLink();
   List<ChipDropdownItem> selectedItems = [];
@@ -160,7 +170,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
     overlayEntry = OverlayEntry(
       builder: (context) {
         return Positioned(
-          // TODO: Need improvement in setting width of overlay as same as that of widget.
           width: widget.width ?? (overlaySize.width),
           child: CompositedTransformFollower(
             link: layerLink,
@@ -206,8 +215,8 @@ class _ChipDropdownState extends State<ChipDropdown> {
                 children: [
                   for (int i = 0; i < selectedItems.length; i++)
                     Container(
-                      margin: EdgeInsets.all(widget.chipMargin ?? 2),
-                      padding: EdgeInsets.all(widget.chipPadding ?? 8),
+                      margin: EdgeInsets.all(widget.chipMargin ?? chipMargin),
+                      padding: EdgeInsets.all(widget.chipPadding ?? chipPadding),
                       decoration: const BoxDecoration(
                         color: Color(0xffeeeeee),
                         borderRadius: BorderRadius.all(Radius.circular(30)),
@@ -226,31 +235,41 @@ class _ChipDropdownState extends State<ChipDropdown> {
                                   ),
                                 )
                               : const SizedBox(),
-                          const SizedBox(
-                            width: 2,
+                          SizedBox(
+                            width: chipImageAndTitleGap,
                           ),
-                          Text(
-                            selectedItems[i].title,
-                            style: TextStyle(fontSize: widget.chipFontSize),
+                          Container(
+                            constraints: BoxConstraints(
+                                maxWidth: overlaySize.width -
+                                    (chipCloseIconSize + chipImageAndTitleGap + (chipMargin + chipPadding + mainWidgetPadding) * 2)),
+                            child: Text(
+                              selectedItems[i].title,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: widget.chipFontSize),
+                            ),
                           ),
-                          IconButton(
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            onPressed: () {
-                              filteredItems.add(selectedItems[i]);
-                              selectedItems.remove(selectedItems[i]);
+                          SizedBox(
+                            width: chipCloseIconSize,
+                            height: chipCloseIconSize,
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              onPressed: () {
+                                filteredItems.add(selectedItems[i]);
+                                selectedItems.remove(selectedItems[i]);
 
-                              // Clear input field and update popup items with unfiltered data
-                              textEditingController.clear();
-                              if (widget.isMultiselectionMode == false) filterItems('');
+                                // Clear input field and update popup items with unfiltered data
+                                textEditingController.clear();
+                                if (widget.isMultiselectionMode == false) filterItems('');
 
-                              updateOverlayState();
-                              isWidgetCurrenltyActive = true;
-                              setState(() {});
-                              widget.isMultiselectionMode ? onMultiSeletionChipRemove() : onSingleSelectionChipRemove();
-                            },
-                            icon: const Icon(
-                              Icons.close,
+                                updateOverlayState();
+                                isWidgetCurrenltyActive = true;
+                                setState(() {});
+                                widget.isMultiselectionMode ? onMultiSeletionChipRemove() : onSingleSelectionChipRemove();
+                              },
+                              icon: const Icon(
+                                Icons.close,
+                              ),
                             ),
                           )
                         ],
