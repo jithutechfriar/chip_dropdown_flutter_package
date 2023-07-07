@@ -37,6 +37,7 @@ class ChipDropdown extends StatefulWidget {
     this.chipPadding,
     this.chipFontSize,
     this.hintStyle,
+    this.overlayHeight,
   });
   ChipDropdown.multiselection({
     super.key,
@@ -52,6 +53,7 @@ class ChipDropdown extends StatefulWidget {
     this.chipPadding,
     this.chipFontSize,
     this.hintStyle,
+    this.overlayHeight,
   }) {
     isMultiselectionMode = true;
   }
@@ -71,6 +73,7 @@ class ChipDropdown extends StatefulWidget {
   final double? chipPadding;
   final double? chipMargin;
   final double? chipFontSize;
+  final double? overlayHeight;
   final TextStyle? hintStyle;
 
   @override
@@ -92,6 +95,8 @@ class _ChipDropdownState extends State<ChipDropdown> {
   double chipCloseIconSize = 24;
   // Gap between image and title in chip
   double chipImageAndTitleGap = 2;
+  // Height of overlay
+  double overlayHeight = 150;
 
   final layerLink = LayerLink();
   List<ChipDropdownItem> selectedItems = [];
@@ -369,7 +374,18 @@ class _ChipDropdownState extends State<ChipDropdown> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: generateOverlayWidgets(),
+        children: [
+          // Add close button at the top
+          closeOverlayIcon(),
+          Container(
+            constraints: BoxConstraints(maxHeight: widget.overlayHeight ?? overlayHeight),
+            child: SingleChildScrollView(
+              child: Column(
+                children: generateOverlayWidgets(),
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
@@ -377,8 +393,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
   /// Generate overlay widget including `close button` at the top and empty message if no items are present in [filteredItems] list
   List<Widget> generateOverlayWidgets() {
     List<Widget> items = [];
-    // Add close button at the top
-    items.add(closeOverlayIcon());
     items.addAll(filteredItems.isEmpty ? emptyItemsOverlayWidget() : overlayWidgets());
     return items;
   }
