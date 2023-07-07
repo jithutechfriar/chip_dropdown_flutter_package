@@ -142,29 +142,30 @@ class _ChipDropdownState extends State<ChipDropdown> {
       }
     });
     return WillPopScope(
-        onWillPop: () async {
-          // If the page is being interrepted by other methods or system inputs, it would be benificial to remove overlay.
-          removeOverlayEntry();
-          return true;
-        },
-        child: Row(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: widget.widgetDecoration ??
-                    const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                // `CompositedTransformTarget` used to track a widget's position while scrolling
-                child: CompositedTransformTarget(
-                  link: layerLink,
-                  child: mainWidget(),
-                ),
+      onWillPop: () async {
+        // If the page is being interrepted by other methods or system inputs, it would be benificial to remove overlay.
+        removeOverlayEntry();
+        return true;
+      },
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: widget.widgetDecoration ??
+                  const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+              // `CompositedTransformTarget` used to track a widget's position while scrolling
+              child: CompositedTransformTarget(
+                link: layerLink,
+                child: mainWidget(),
               ),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 
   void showOverlay(BuildContext context) async {
