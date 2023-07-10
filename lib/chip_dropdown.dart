@@ -97,6 +97,8 @@ class _ChipDropdownState extends State<ChipDropdown> {
   double chipImageAndTitleGap = 2;
   // Height of overlay
   double overlayHeight = 150;
+  // Size of image
+  double imageSize = 30;
 
   final layerLink = LayerLink();
   List<ChipDropdownItem> selectedItems = [];
@@ -235,8 +237,8 @@ class _ChipDropdownState extends State<ChipDropdown> {
                                   borderRadius: BorderRadius.circular(15),
                                   child: Image.network(
                                     selectedItems[i].imageUrl!,
-                                    width: 30,
-                                    height: 30,
+                                    width: imageSize,
+                                    height: imageSize,
                                     fit: BoxFit.fill,
                                   ),
                                 )
@@ -245,9 +247,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                             width: chipImageAndTitleGap,
                           ),
                           Container(
-                            constraints: BoxConstraints(
-                                maxWidth: overlaySize.width -
-                                    (chipCloseIconSize + chipImageAndTitleGap + (chipMargin + chipPadding + mainWidgetPadding) * 2)),
+                            constraints: BoxConstraints(maxWidth: getMaximumAllowedSizeForChipTitle(imageUrl: selectedItems[i].imageUrl)),
                             child: Text(
                               selectedItems[i].title,
                               overflow: TextOverflow.ellipsis,
@@ -426,7 +426,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
   List<Widget> overlayWidgets() {
     List<Widget> items = [];
     for (int i = 0; i < filteredItems.length; i++) {
-      items.add(singlesSeletedChip(item: filteredItems[i]));
+      items.add(singleOverlayItem(item: filteredItems[i]));
     }
     return items;
   }
@@ -434,8 +434,8 @@ class _ChipDropdownState extends State<ChipDropdown> {
   /// Widget to display when there are no items in the [filteredItems] list.
   List<Widget> emptyItemsOverlayWidget() => [Padding(padding: EdgeInsets.all(popupMenuItemPadding), child: const Text('Nothing to show here'))];
 
-  // Widget of a single selected chip, which includes an icon, title and close button
-  Widget singlesSeletedChip({required ChipDropdownItem item}) {
+  // Single element of overlay item.
+  Widget singleOverlayItem({required ChipDropdownItem item}) {
     return InkWell(
       child: Padding(
         padding: EdgeInsets.all(popupMenuItemPadding),
@@ -446,16 +446,15 @@ class _ChipDropdownState extends State<ChipDropdown> {
                     borderRadius: BorderRadius.circular(15),
                     child: Image.network(
                       item.imageUrl!,
-                      width: 30,
-                      height: 30,
+                      width: imageSize,
+                      height: imageSize,
                       fit: BoxFit.fill,
                     ),
                   )
                 : const SizedBox(),
             const SizedBox(),
             SizedBox(
-              // Reduce [popupMenuItemPadding] from both sides
-              width: overlaySize.width - (popupMenuItemPadding * 2),
+              width: getMaximumAllowedSizeForOverlayTitle(imageUrl: item.imageUrl),
               child: Text(
                 item.title,
                 maxLines: 1,
@@ -482,6 +481,37 @@ class _ChipDropdownState extends State<ChipDropdown> {
     setState(() {});
     removeOverlayEntry();
     onSelectionCallback();
+  }
+
+  // Calculate maximum allowed size for title in overlay.
+  // Used to set overflow for title.
+  double getMaximumAllowedSizeForOverlayTitle({required String? imageUrl}) {
+    // Overlay width is the maximum width.
+    double maximumSize = overlaySize.width;
+    // Reduce padding from both sides.
+    maximumSize -= popupMenuItemPadding * 2;
+    // Reduce image size if current item consist of [imageUrl].
+    maximumSize -= imageUrl != null ? imageSize : 0;
+
+    return maximumSize;
+  }
+
+  // Calculate maximum allowed size for title in main widget chip.
+  double getMaximumAllowedSizeForChipTitle({required String? imageUrl}) {
+    // Overlay width is the maximum width.
+    double maximumSize = overlaySize.width;
+    // Reduce width of close icon.
+    maximumSize -= chipCloseIconSize;
+    // Reduce gap between image and title inside the chip.
+    maximumSize -= chipImageAndTitleGap;
+    // Reduce chip margin from both sides.
+    maximumSize -= chipMargin * 2;
+    // Reduce chip padding from both sides.
+    maximumSize -= chipPadding * 2;
+    // Reduce main widget padding from  both sides.
+    maximumSize -= mainWidgetPadding * 2;
+
+    return maximumSize;
   }
 
   // Handle onTap of overlay item for `MultiSelection` widget
