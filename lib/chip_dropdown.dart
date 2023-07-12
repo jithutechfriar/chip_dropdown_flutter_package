@@ -529,7 +529,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
     // Clear input field and update popup items with unfiltered data
     textEditingController.clear();
-    if (widget.isMultiselectionMode == false) filterItems('');
+    filterItems('');
 
     setState(() {});
     updateOverlayState();
