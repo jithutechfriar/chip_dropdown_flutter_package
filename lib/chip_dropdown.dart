@@ -5,8 +5,6 @@ library chip_dropdown;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'globals.dart';
-
 /// README
 /// - This widget has two `setSate()` properties
 /// -- 1. To update widget => setSate()
@@ -119,6 +117,12 @@ class _ChipDropdownState extends State<ChipDropdown> {
   // Width of main widget
   double? mainWidgetWidth;
 
+  // Detect if [build()] called by updating this widget or entirely rebuilding this widget from its parent outside.
+  bool isSetSateCalledInternally = false;
+
+  // Is user interacted with the widget to show.
+  bool isWidgetCurrenltyActive = false;
+
   @override
   void initState() {
     super.initState();
@@ -141,9 +145,12 @@ class _ChipDropdownState extends State<ChipDropdown> {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isWidgetCurrenltyActive && needOverlayRefresh) {
+      if (isWidgetCurrenltyActive && needOverlayRefresh && isSetSateCalledInternally) {
         // Remove existing overylay and add new overylay with the latest data.
         refreshOverlayEntry();
+        isSetSateCalledInternally = false;
+      } else {
+        filteredItems = List.from(widget.items);
       }
     });
     return WillPopScope(
@@ -276,6 +283,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
                                     updateOverlayState();
                                     isWidgetCurrenltyActive = true;
+                                    isSetSateCalledInternally = true;
                                     setState(() {});
                                     widget.isMultiselectionMode ? onMultiSeletionChipRemove() : onSingleSelectionChipRemove();
                                   },
@@ -297,6 +305,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                               filteredItems.add(selectedItems.last);
                               selectedItems.removeLast();
                               updateOverlayState();
+                              isSetSateCalledInternally = true;
                               setState(() {});
                               onChangedCallback();
                             }
@@ -363,7 +372,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
         filteredItems.remove(item);
       }
     }
-
+    isSetSateCalledInternally = true;
     setState(() {});
   }
 
@@ -486,6 +495,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
     selectedItems.add(item);
     filteredItems.remove(item);
     needOverlayRefresh = false;
+    isSetSateCalledInternally = true;
     setState(() {});
     removeOverlayEntry();
     onSelectionCallback();
@@ -530,7 +540,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
     // Clear input field and update popup items with unfiltered data
     textEditingController.clear();
     filterItems('');
-
+    isSetSateCalledInternally = true;
     setState(() {});
     updateOverlayState();
     onChangedCallback();
