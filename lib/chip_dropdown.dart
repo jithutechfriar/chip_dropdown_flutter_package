@@ -56,22 +56,63 @@ class ChipDropdown extends StatefulWidget {
     isMultiselectionMode = true;
   }
 
+  /// Multi selection property.
+  /// Returns ids as a list of [String].
   Function(List<String> selectedItems)? onChanged;
+
+  /// Multi selection property.
+  /// Returns ids as a list of [ChipDropdownItem].
   Function(List<ChipDropdownItem> selectedItems)? onChangedAsItem;
+
+  /// Single selection property.
+  /// Returns a single [id] as [String].
   Function(String selectedItemId)? onSelection;
+
+  /// Single selection property.
+  /// Returns a single [id] as [ChipDropdownItem].
   Function(ChipDropdownItem? selectedItemId)? onSelectionAsItem;
+
+  /// List of items to load in ChipDropdown.
   final List<ChipDropdownItem> items;
+
+  /// Width of widget.
   final double? width;
+
+  /// Possible modes.
+  /// 1. Single Selection => isMultiselectionMode == false;
+  /// 2. Multi Selection => isMultiselectionMode == true;
   bool isMultiselectionMode = false;
+
+  /// Hint text for input text field.
   final String? hint;
+
+  /// Single selection property.
+  /// Inital value to display.
   ChipDropdownItem? initialValue;
+
+  /// Multi selection property.
+  /// Initial values to display.
   List<ChipDropdownItem>? initialValues;
+
+  /// Decoration property for main widget.
   final Decoration? widgetDecoration;
+
+  /// Decoration property for dropdown overlay.
   final Decoration? dropdownDecoration;
+
+  /// Padding of single chip in main widget.
   final double? chipPadding;
+
+  /// Margin of single chip in main widget.
   final double? chipMargin;
+
+  /// Font size of chip text.
   final double? chipFontSize;
+
+  /// Height of dropdown overlay.
   final double? overlayHeight;
+
+  /// Style properties for hint.
   final TextStyle? hintStyle;
 
   @override
