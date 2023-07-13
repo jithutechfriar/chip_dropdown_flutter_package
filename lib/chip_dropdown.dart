@@ -451,6 +451,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
           Container(
             constraints: BoxConstraints(maxHeight: widget.overlayHeight ?? overlayHeight),
             child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 children: generateOverlayWidgets(),
               ),
