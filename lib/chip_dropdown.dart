@@ -139,13 +139,28 @@ class _ChipDropdownState extends State<ChipDropdown> {
   // Size of image
   double imageSize = 30;
 
+  // To link widget and overly to keep overlay always below the widget.
   final layerLink = LayerLink();
+
+  // List of selected items.
   List<ChipDropdownItem> selectedItems = [];
+
+  // List of filtered items to display in overlay menu.
   List<ChipDropdownItem> filteredItems = [];
+
+  // SetSate for rebuilding overlay.
   late void Function(void Function()) overlaySetState;
-  TextEditingController textEditingController = TextEditingController();
+
+  // controller for search input field.
+  TextEditingController searchTextController = TextEditingController();
+
+  // focusNode to detect `backSpace` key input from keyboard.
   FocusNode focusNode = FocusNode();
+
+  // Current overlay entry object.
   OverlayEntry? overlayEntry;
+
+  // Current overlay state oject.
   late OverlayState overlayState;
 
   // Overlay refresh will take place after the build of last frame in `addPostFrameCallback()`
@@ -319,7 +334,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                                     selectedItems.remove(selectedItems[i]);
 
                                     // Clear input field and update popup items with unfiltered data
-                                    textEditingController.clear();
+                                    searchTextController.clear();
                                     if (widget.isMultiselectionMode == false) filterItems('');
 
                                     updateOverlayState();
@@ -359,7 +374,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                                 border: InputBorder.none,
                                 hintStyle: widget.hintStyle ?? const TextStyle(fontSize: 12),
                               ),
-                              controller: textEditingController,
+                              controller: searchTextController,
                               onTap: () {
                                 // Prevent multiple overlays from showing at the same time.
                                 if (overlayEntry == null) {
@@ -575,7 +590,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
     filteredItems.remove(item);
 
     // Clear input field and update popup items with unfiltered data
-    textEditingController.clear();
+    searchTextController.clear();
     filterItems('');
     _setState();
     updateOverlayState();
