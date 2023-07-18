@@ -36,6 +36,7 @@ class ChipDropdown extends StatefulWidget {
     this.chipFontSize,
     this.hintStyle,
     this.overlayHeight,
+    this.textFieldWidth,
   });
   ChipDropdown.multiselection({
     super.key,
@@ -52,6 +53,7 @@ class ChipDropdown extends StatefulWidget {
     this.chipFontSize,
     this.hintStyle,
     this.overlayHeight,
+    this.textFieldWidth
   }) {
     isMultiselectionMode = true;
   }
@@ -114,6 +116,9 @@ class ChipDropdown extends StatefulWidget {
 
   /// Style properties for hint.
   final TextStyle? hintStyle;
+
+  /// Width of text field
+  final double? textFieldWidth;
 
   @override
   State<ChipDropdown> createState() => _ChipDropdownState();
@@ -351,7 +356,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                           ),
                         ),
                       SizedBox(
-                        width: 100,
+                        width: widget.textFieldWidth ?? 100,
                         child: RawKeyboardListener(
                           focusNode: focusNode,
                           onKey: (value) {
