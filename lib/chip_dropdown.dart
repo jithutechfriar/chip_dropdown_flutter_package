@@ -37,6 +37,7 @@ class ChipDropdown extends StatefulWidget {
     this.hintStyle,
     this.overlayHeight,
     this.textFieldWidth,
+    this.errorText,
   });
   ChipDropdown.multiselection({
     super.key,
@@ -53,7 +54,8 @@ class ChipDropdown extends StatefulWidget {
     this.chipFontSize,
     this.hintStyle,
     this.overlayHeight,
-    this.textFieldWidth
+    this.textFieldWidth,
+    this.errorText,
   }) {
     isMultiselectionMode = true;
   }
@@ -119,6 +121,9 @@ class ChipDropdown extends StatefulWidget {
 
   /// Width of text field
   final double? textFieldWidth;
+
+  /// To display error message below the widget.
+  final String? errorText;
 
   @override
   State<ChipDropdown> createState() => _ChipDropdownState();
@@ -223,20 +228,39 @@ class _ChipDropdownState extends State<ChipDropdown> {
       child: Row(
         children: [
           Expanded(
-            child: Container(
-              decoration: widget.widgetDecoration ??
-                  const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: widget.widgetDecoration ??
+                      const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                  // `CompositedTransformTarget` used to track a widget's position while scrolling
+                  child: CompositedTransformTarget(
+                    link: layerLink,
+                    child: mainWidget(),
                   ),
-              // `CompositedTransformTarget` used to track a widget's position while scrolling
-              child: CompositedTransformTarget(
-                link: layerLink,
-                child: mainWidget(),
-              ),
+                ),
+                if (widget.errorText != null) errorTextWidget()
+              ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Widget to display error message
+  Widget errorTextWidget() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 5),
+      child: Text(
+        widget.errorText!,
+        style: const TextStyle(
+          color: Colors.red,
+        ),
       ),
     );
   }
