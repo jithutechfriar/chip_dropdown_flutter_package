@@ -215,9 +215,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
         // Remove existing overylay and add new overylay with the latest data.
         refreshOverlayEntry();
         isSetSateCalledInternally = false;
-      } else {
-        filteredItems = List.from(widget.items);
-      }
+      } 
     });
     return WillPopScope(
       onWillPop: () async {
