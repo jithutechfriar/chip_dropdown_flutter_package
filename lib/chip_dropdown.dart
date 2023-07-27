@@ -19,6 +19,18 @@ import 'package:flutter/services.dart';
 /// - Multi selection widget can be accessed by the [ChipDropdown.multiselection] constructor.
 /// -- [initialValues] => For single initial value. Accepts list of [ChipDropdownItem] values.
 /// -- [onChanged] => For single onSelection callback. Returns ids of selected items as a list.
+///
+
+/// Enums
+enum ChipDropdownMode {
+  // Follows main widget while scrolling.
+  // Tap on [x] icon to close overlay
+  normal,
+  // Overlay in fixed position.
+  // Dim background
+  // Tap anywhere else to close
+  focused
+}
 
 class ChipDropdown extends StatefulWidget {
   ChipDropdown({
@@ -38,6 +50,7 @@ class ChipDropdown extends StatefulWidget {
     this.overlayHeight,
     this.textFieldWidth,
     this.errorText,
+    this.mode = ChipDropdownMode.normal,
   });
   ChipDropdown.multiselection({
     super.key,
@@ -56,6 +69,7 @@ class ChipDropdown extends StatefulWidget {
     this.overlayHeight,
     this.textFieldWidth,
     this.errorText,
+    this.mode = ChipDropdownMode.normal,
   }) {
     isMultiselectionMode = true;
   }
@@ -124,6 +138,9 @@ class ChipDropdown extends StatefulWidget {
 
   /// To display error message below the widget.
   final String? errorText;
+
+  /// Change between modes
+  final ChipDropdownMode mode;
 
   @override
   State<ChipDropdown> createState() => _ChipDropdownState();
@@ -194,7 +211,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
     super.initState();
     filteredItems = List.from(widget.items);
 
-    // - Initial value of `Single selection dropdwon` or initial values of `Multi selection dropdown` must be present in the items list of dropdown.
+    // - Initial value must be present in the items list of dropdown.
     handleInputErrors();
 
     // Load correspoding initial values.
@@ -215,7 +232,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
         // Remove existing overylay and add new overylay with the latest data.
         refreshOverlayEntry();
         isSetSateCalledInternally = false;
-      } 
+      }
     });
     return WillPopScope(
       onWillPop: () async {
@@ -270,27 +287,46 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
     overlayEntry = OverlayEntry(
       builder: (context) {
-        return Positioned(
-          width: widget.width ?? (overlaySize.width),
-          child: CompositedTransformFollower(
-            link: layerLink,
-            showWhenUnlinked: false,
-            offset: Offset(0, overlaySize.height + 5),
-            child: Material(
-              color: Colors.transparent,
-              child: StatefulBuilder(
-                builder: (context, setState) {
-                  overlaySetState = setState;
-                  return overlayWidget();
-                },
-                // child: overlayWidget(),
+        if (widget.mode == ChipDropdownMode.focused) {
+          return GestureDetector(
+            onTap: () {
+              removeOverlayEntry();
+            },
+            child: Container(
+              color: const Color.fromARGB(43, 0, 0, 0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [overlayParentWidget()],
               ),
             ),
-          ),
-        );
+          );
+        } else {
+          return overlayParentWidget();
+        }
       },
     );
     overlayState.insert(overlayEntry!);
+  }
+
+  Widget overlayParentWidget() {
+    return Positioned(
+      width: widget.width ?? (overlaySize.width),
+      child: CompositedTransformFollower(
+        link: layerLink,
+        showWhenUnlinked: false,
+        offset: Offset(0, overlaySize.height + 5),
+        child: Material(
+          color: Colors.transparent,
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              overlaySetState = setState;
+              return overlayWidget();
+            },
+            // child: overlayWidget(),
+          ),
+        ),
+      ),
+    );
   }
 
   // Widget that contains the details of selected items and an input text field to search for new items.
@@ -364,8 +400,12 @@ class _ChipDropdownState extends State<ChipDropdown> {
                                     searchTextController.clear();
                                     if (widget.isMultiselectionMode == false) filterItems('');
 
-                                    updateOverlayState();
-                                    isWidgetCurrenltyActive = true;
+                                    if (widget.mode == ChipDropdownMode.normal) {
+                                      updateOverlayState();
+                                      isWidgetCurrenltyActive = true;
+                                    } else {
+                                      needOverlayRefresh = false;
+                                    }
                                     _setState();
                                     widget.isMultiselectionMode ? onMultiSeletionChipRemove() : onSingleSelectionChipRemove();
                                   },
@@ -453,6 +493,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
         filteredItems.remove(item);
       }
     }
+    needOverlayRefresh = true;
     _setState();
   }
 
@@ -474,7 +515,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Add close button at the top
-          closeOverlayIcon(),
+          if (widget.mode == ChipDropdownMode.normal) closeOverlayIcon(),
           Container(
             constraints: BoxConstraints(maxHeight: widget.overlayHeight ?? overlayHeight),
             child: SingleChildScrollView(
