@@ -288,14 +288,12 @@ class _ChipDropdownState extends State<ChipDropdown> {
     overlayEntry = OverlayEntry(
       builder: (context) {
         if (widget.mode == ChipDropdownMode.focused) {
-          return Container(
-              color: const Color.fromARGB(43, 0, 0, 0),
-              child: GestureDetector(
-                onTap: () {
-                  removeOverlayEntry();
-                },
-                child: overlayParentWidget(),
-              ));
+          return GestureDetector(
+            onTap: () {
+              removeOverlayEntry();
+            },
+            child: Container(color: const Color.fromARGB(43, 0, 0, 0), child: overlayParentWidget()),
+          );
         } else {
           return overlayParentWidget();
         }
