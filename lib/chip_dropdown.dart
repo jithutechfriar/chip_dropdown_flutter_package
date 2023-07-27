@@ -288,18 +288,14 @@ class _ChipDropdownState extends State<ChipDropdown> {
     overlayEntry = OverlayEntry(
       builder: (context) {
         if (widget.mode == ChipDropdownMode.focused) {
-          return GestureDetector(
-            onTap: () {
-              removeOverlayEntry();
-            },
-            child: Container(
+          return Container(
               color: const Color.fromARGB(43, 0, 0, 0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [overlayParentWidget()],
-              ),
-            ),
-          );
+              child: GestureDetector(
+                onTap: () {
+                  removeOverlayEntry();
+                },
+                child: overlayParentWidget(),
+              ));
         } else {
           return overlayParentWidget();
         }
@@ -309,23 +305,27 @@ class _ChipDropdownState extends State<ChipDropdown> {
   }
 
   Widget overlayParentWidget() {
-    return Positioned(
-      width: widget.width ?? (overlaySize.width),
-      child: CompositedTransformFollower(
-        link: layerLink,
-        showWhenUnlinked: false,
-        offset: Offset(0, overlaySize.height + 5),
-        child: Material(
-          color: Colors.transparent,
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              overlaySetState = setState;
-              return overlayWidget();
-            },
-            // child: overlayWidget(),
+    return Stack(
+      children: [
+        Positioned(
+          width: widget.width ?? (overlaySize.width),
+          child: CompositedTransformFollower(
+            link: layerLink,
+            showWhenUnlinked: false,
+            offset: Offset(0, overlaySize.height + 5),
+            child: Material(
+              color: Colors.transparent,
+              child: StatefulBuilder(
+                builder: (context, setState) {
+                  overlaySetState = setState;
+                  return overlayWidget();
+                },
+                // child: overlayWidget(),
+              ),
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
