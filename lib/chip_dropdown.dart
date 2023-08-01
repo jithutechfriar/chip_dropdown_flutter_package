@@ -165,6 +165,8 @@ class _ChipDropdownState extends State<ChipDropdown> {
   double overlayHeight = 150;
   // Size of image
   double imageSize = 30;
+  // Gap between image and title
+  double paddingBetweenImageAndTitle = 5;
 
   // To link widget and overly to keep overlay always below the widget.
   final layerLink = LayerLink();
@@ -581,25 +583,52 @@ class _ChipDropdownState extends State<ChipDropdown> {
         padding: EdgeInsets.all(popupMenuItemPadding),
         child: Row(
           children: [
-            item.imageUrl != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image.network(
-                      item.imageUrl!,
-                      width: imageSize,
-                      height: imageSize,
-                      fit: BoxFit.fill,
-                    ),
-                  )
-                : const SizedBox(),
-            const SizedBox(),
+            if (item.imageUrl != null)
+              Padding(
+                padding: EdgeInsets.only(right: paddingBetweenImageAndTitle),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.network(
+                    item.imageUrl!,
+                    width: imageSize,
+                    height: imageSize,
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
             SizedBox(
               width: getMaximumAllowedSizeForOverlayTitle(imageUrl: item.imageUrl),
-              child: Text(
-                item.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    item.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  if (item.description != null)
+                    Expanded(
+                      child: Wrap(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.all(widget.chipMargin ?? chipMargin),
+                            padding: EdgeInsets.all(widget.chipPadding ?? chipPadding),
+                            decoration: const BoxDecoration(
+                              color: Color(0xffeeeeee),
+                              borderRadius: BorderRadius.all(Radius.circular(30)),
+                            ),
+                            child: Text(
+                              item.description!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
             ),
           ],
@@ -630,8 +659,8 @@ class _ChipDropdownState extends State<ChipDropdown> {
     double maximumSize = overlaySize.width;
     // Reduce padding from both sides.
     maximumSize -= popupMenuItemPadding * 2;
-    // Reduce image size if current item consist of [imageUrl].
-    maximumSize -= imageUrl != null ? imageSize : 0;
+    // Reduce image size and gap to title if current item consist of [imageUrl].
+    maximumSize -= imageUrl != null ? (imageSize + paddingBetweenImageAndTitle) : 0;
 
     return maximumSize;
   }
@@ -730,7 +759,10 @@ class _ChipDropdownState extends State<ChipDropdown> {
     if (widget.initialValue != null) {
       bool isFound = false;
       for (var item in widget.items) {
-        if (item.id == widget.initialValue!.id && item.title == widget.initialValue!.title && item.imageUrl == widget.initialValue!.imageUrl) {
+        if (item.id == widget.initialValue!.id &&
+            item.title == widget.initialValue!.title &&
+            item.description == widget.initialValue!.description &&
+            item.imageUrl == widget.initialValue!.imageUrl) {
           isFound = true;
         }
       }
@@ -742,7 +774,10 @@ class _ChipDropdownState extends State<ChipDropdown> {
       bool isFound = false;
       for (ChipDropdownItem initialValue in widget.initialValues!) {
         for (ChipDropdownItem item in widget.items) {
-          if (item.id == initialValue.id && item.title == initialValue.title && item.imageUrl == initialValue.imageUrl) {
+          if (item.id == initialValue.id &&
+              item.title == initialValue.title &&
+              item.description == widget.initialValue!.description &&
+              item.imageUrl == initialValue.imageUrl) {
             isFound = true;
           }
         }
@@ -780,8 +815,9 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
 // Model class to accept input values.
 class ChipDropdownItem {
-  const ChipDropdownItem({required this.id, required this.title, this.imageUrl});
+  const ChipDropdownItem({required this.id, required this.title, this.description, this.imageUrl});
   final String id;
   final String title;
+  final String? description;
   final String? imageUrl;
 }
