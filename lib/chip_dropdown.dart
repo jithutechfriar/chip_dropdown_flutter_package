@@ -227,6 +227,9 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
   @override
   Widget build(BuildContext context) {
+    if (isSetSateCalledInternally == false) {
+      filterItems('');
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (isWidgetCurrenltyActive && needOverlayRefresh && isSetSateCalledInternally) {
         // Remove existing overylay and add new overylay with the latest data.
