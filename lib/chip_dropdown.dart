@@ -230,7 +230,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
   @override
   Widget build(BuildContext context) {
     if (isSetSateCalledInternally == false) {
-      filterItems('');
+      updateNewValuesOnExternalSetState();
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (isWidgetCurrenltyActive && needOverlayRefresh && isSetSateCalledInternally) {
@@ -810,6 +810,22 @@ class _ChipDropdownState extends State<ChipDropdown> {
   _setState() {
     isSetSateCalledInternally = true;
     setState(() {});
+  }
+
+  /// Update new values on external set state call.
+  void updateNewValuesOnExternalSetState() {
+    filterItems('');
+    if (widget.isMultiselectionMode) {
+      for (ChipDropdownItem initialValue in widget.initialValues ?? []) {
+        filteredItems.removeWhere(
+          (element) => element.id == initialValue.id,
+        );
+      }
+    } else {
+      filteredItems.removeWhere(
+        (element) => element.id == widget.initialValue?.id,
+      );
+    }
   }
 }
 
