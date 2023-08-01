@@ -776,7 +776,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
         for (ChipDropdownItem item in widget.items) {
           if (item.id == initialValue.id &&
               item.title == initialValue.title &&
-              item.description == widget.initialValue!.description &&
+              item.description == initialValue.description &&
               item.imageUrl == initialValue.imageUrl) {
             isFound = true;
           }
