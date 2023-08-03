@@ -233,11 +233,11 @@ class _ChipDropdownState extends State<ChipDropdown> {
       updateNewValuesOnExternalSetState();
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      isSetSateCalledInternally = false;
       if (isWidgetCurrenltyActive && needOverlayRefresh && isSetSateCalledInternally) {
         // Remove existing overylay and add new overylay with the latest data.
         refreshOverlayEntry();
       }
+      isSetSateCalledInternally = false;
     });
     return WillPopScope(
       onWillPop: () async {
