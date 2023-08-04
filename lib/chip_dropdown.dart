@@ -51,6 +51,7 @@ class ChipDropdown extends StatefulWidget {
     this.textFieldWidth,
     this.errorText,
     this.mode = ChipDropdownMode.normal,
+    this.textFieldPadding,
   });
   ChipDropdown.multiselection({
     super.key,
@@ -70,6 +71,7 @@ class ChipDropdown extends StatefulWidget {
     this.textFieldWidth,
     this.errorText,
     this.mode = ChipDropdownMode.normal,
+    this.textFieldPadding,
   }) {
     isMultiselectionMode = true;
   }
@@ -141,6 +143,9 @@ class ChipDropdown extends StatefulWidget {
 
   /// Change between modes
   final ChipDropdownMode mode;
+
+  /// Padding for input text field.
+  final EdgeInsetsGeometry? textFieldPadding;
 
   @override
   State<ChipDropdown> createState() => _ChipDropdownState();
@@ -437,24 +442,27 @@ class _ChipDropdownState extends State<ChipDropdown> {
                           child: Visibility(
                             // Hide input text field if the selection mode is single selection and one item is selected
                             visible: !(widget.isMultiselectionMode == false && selectedItems.length == 1),
-                            child: TextField(
-                              cursorColor: Colors.grey,
-                              decoration: InputDecoration(
-                                hintText: setTextFieldHint(),
-                                border: InputBorder.none,
-                                hintStyle: widget.hintStyle ?? const TextStyle(fontSize: 12),
+                            child: Padding(
+                              padding: widget.textFieldPadding != null && selectedItems.isEmpty ? widget.textFieldPadding! : const EdgeInsets.all(0),
+                              child: TextField(
+                                cursorColor: Colors.grey,
+                                decoration: InputDecoration(
+                                  hintText: setTextFieldHint(),
+                                  border: InputBorder.none,
+                                  hintStyle: widget.hintStyle ?? const TextStyle(fontSize: 12),
+                                ),
+                                controller: searchTextController,
+                                onTap: () {
+                                  // Prevent multiple overlays from showing at the same time.
+                                  if (overlayEntry == null) {
+                                    showOverlay(context);
+                                  }
+                                  isWidgetCurrenltyActive = true;
+                                },
+                                onChanged: (value) {
+                                  filterItems(value);
+                                },
                               ),
-                              controller: searchTextController,
-                              onTap: () {
-                                // Prevent multiple overlays from showing at the same time.
-                                if (overlayEntry == null) {
-                                  showOverlay(context);
-                                }
-                                isWidgetCurrenltyActive = true;
-                              },
-                              onChanged: (value) {
-                                filterItems(value);
-                              },
                             ),
                           ),
                         ),
