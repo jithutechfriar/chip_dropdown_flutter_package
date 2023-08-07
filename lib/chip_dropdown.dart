@@ -658,6 +658,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
     _setState();
     removeOverlayEntry();
     onSelectionCallback();
+    if (widget.mode == ChipDropdownMode.focused) isWidgetCurrenltyActive = false;
   }
 
   // Calculate maximum allowed size for title in overlay.
@@ -702,6 +703,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
     _setState();
     updateOverlayState();
     onChangedCallback();
+    if (widget.mode == ChipDropdownMode.focused) isWidgetCurrenltyActive = false;
   }
 
   // Replace current popup and add new one.
