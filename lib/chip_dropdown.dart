@@ -301,6 +301,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
           return GestureDetector(
             onTap: () {
               removeOverlayEntry();
+              isWidgetCurrenltyActive = false;
             },
             child: Container(color: const Color.fromARGB(43, 0, 0, 0), child: overlayParentWidget()),
           );
@@ -703,7 +704,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
     _setState();
     updateOverlayState();
     onChangedCallback();
-    if (widget.mode == ChipDropdownMode.focused) isWidgetCurrenltyActive = false;
   }
 
   // Replace current popup and add new one.
