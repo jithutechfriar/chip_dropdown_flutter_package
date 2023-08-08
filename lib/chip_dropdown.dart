@@ -195,7 +195,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
   // Current overlay state oject.
   late OverlayState overlayState;
 
-
   // Size of overlay entry
   late Size overlaySize;
 
@@ -210,7 +209,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
     super.initState();
 
     // - Initial value must be present in the items list of dropdown.
-    handleInputErrors();
+    inputValidation();
 
     // Load correspoding initial values.
     widget.isMultiselectionMode ? loadMultiSelectionInitialValue() : loadSingleSelectionInitialValue();
@@ -224,14 +223,13 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
   @override
   Widget build(BuildContext context) {
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (isSetStateCalledInternally) {
         // Remove existing overylay and add new overylay with the latest data.
         refreshOverlayEntry();
         isSetStateCalledInternally = false;
       } else {
-        // updateNewValuesOnExternalSetState();
+        updateNewValuesOnExternalSetState();
       }
     });
     return WillPopScope(
@@ -399,7 +397,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
                                     if (widget.mode == ChipDropdownMode.normal) {
                                       updateOverlayState();
-                                    } 
+                                    }
                                     widget.isMultiselectionMode ? onMultiSeletionChipRemove() : onSingleSelectionChipRemove();
                                     _setState();
                                   },
@@ -746,7 +744,14 @@ class _ChipDropdownState extends State<ChipDropdown> {
   }
 
   // Check if the widget has received the necessary data to work properly.
-  handleInputErrors() {
+  inputValidation() {
+    for (ChipDropdownItem item in widget.items) {
+      if (widget.items.where((element) => element.id == item.id).length > 1) {
+        assert(false, 'Items must have unique id. Duplicate item found in list.');
+      }
+    }
+
+    /// Single selection ///
     /// To check if the initial value of `Single selection chip dropdown` is present in items list.
     if (widget.initialValue != null) {
       bool isFound = false;
@@ -761,6 +766,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
       assert(isFound, 'Initial value must be present in the dropdown items list');
     }
 
+    /// Multi selection ///
     /// To check if the initial values of `Multi selection chip dropdown` is present in items list.
     if (widget.initialValues != null) {
       bool isFound = false;
@@ -807,17 +813,8 @@ class _ChipDropdownState extends State<ChipDropdown> {
   /// Update new values on external set state call.
   void updateNewValuesOnExternalSetState() {
     filterItems('');
-    if (widget.isMultiselectionMode) {
-      for (ChipDropdownItem initialValue in widget.initialValues ?? []) {
-        filteredItems.removeWhere(
-          (element) => element.id == initialValue.id,
-        );
-      }
-    } else {
-      filteredItems.removeWhere(
-        (element) => element.id == widget.initialValue?.id,
-      );
-    }
+    inputValidation();
+    _setState();
   }
 }
 
