@@ -153,8 +153,6 @@ class ChipDropdown extends StatefulWidget {
 
 class _ChipDropdownState extends State<ChipDropdown> {
   /// Customizable properties
-  ///
-
   double popupMenuItemPadding = 8;
   // All side padding of main widget
   double mainWidgetPadding = 8;
@@ -197,10 +195,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
   // Current overlay state oject.
   late OverlayState overlayState;
 
-  // Overlay refresh will take place after the build of last frame in `addPostFrameCallback()`
-  // toggle this varible to set overlay refresh.
-  bool needOverlayRefresh = true;
-
   // Size of overlay entry
   late Size overlaySize;
 
@@ -208,18 +202,14 @@ class _ChipDropdownState extends State<ChipDropdown> {
   double? mainWidgetWidth;
 
   // Detect if [build()] called by updating this widget or entirely rebuilding this widget from its parent outside.
-  bool isSetSateCalledInternally = false;
-
-  // Is user interacted with the widget to show.
-  bool isWidgetCurrenltyActive = false;
+  bool isSetStateCalledInternally = false;
 
   @override
   void initState() {
     super.initState();
-    filteredItems = List.from(widget.items);
 
     // - Initial value must be present in the items list of dropdown.
-    handleInputErrors();
+    inputValidation();
 
     // Load correspoding initial values.
     widget.isMultiselectionMode ? loadMultiSelectionInitialValue() : loadSingleSelectionInitialValue();
@@ -228,21 +218,19 @@ class _ChipDropdownState extends State<ChipDropdown> {
   @override
   void dispose() {
     removeOverlayEntry();
-    isWidgetCurrenltyActive = false;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isSetSateCalledInternally == false) {
-      updateNewValuesOnExternalSetState();
-    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isWidgetCurrenltyActive && needOverlayRefresh && isSetSateCalledInternally) {
+      if (isSetStateCalledInternally) {
         // Remove existing overylay and add new overylay with the latest data.
         refreshOverlayEntry();
+        isSetStateCalledInternally = false;
+      } else {
+        updateNewValuesOnExternalSetState();
       }
-      isSetSateCalledInternally = false;
     });
     return WillPopScope(
       onWillPop: () async {
@@ -301,7 +289,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
           return GestureDetector(
             onTap: () {
               removeOverlayEntry();
-              isWidgetCurrenltyActive = false;
             },
             child: Container(color: const Color.fromARGB(43, 0, 0, 0), child: overlayParentWidget()),
           );
@@ -348,7 +335,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
         if (overlayEntry == null) {
           showOverlay(context);
         }
-        isWidgetCurrenltyActive = true;
       },
       child: LayoutBuilder(
         builder: (ctx, constarints) {
@@ -407,16 +393,13 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
                                     // Clear input field and update popup items with unfiltered data
                                     searchTextController.clear();
-                                    if (widget.isMultiselectionMode == false) filterItems('');
+                                    filterItems('');
 
                                     if (widget.mode == ChipDropdownMode.normal) {
                                       updateOverlayState();
-                                      isWidgetCurrenltyActive = true;
-                                    } else {
-                                      needOverlayRefresh = false;
                                     }
-                                    _setState();
                                     widget.isMultiselectionMode ? onMultiSeletionChipRemove() : onSingleSelectionChipRemove();
+                                    _setState();
                                   },
                                   icon: const Icon(
                                     Icons.close,
@@ -458,7 +441,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
                                   if (overlayEntry == null) {
                                     showOverlay(context);
                                   }
-                                  isWidgetCurrenltyActive = true;
                                 },
                                 onChanged: (value) {
                                   filterItems(value);
@@ -499,14 +481,14 @@ class _ChipDropdownState extends State<ChipDropdown> {
   filterItems(String value) {
     filteredItems = widget.items.where((element) => element.title.toLowerCase().contains(value.toLowerCase())).toList();
 
-    // remove selected items
-    for (var item in selectedItems) {
-      if (filteredItems.contains(item)) {
-        filteredItems.remove(item);
+    for (ChipDropdownItem item in selectedItems) {
+      for (int i = 0; i < filteredItems.length; i++) {
+        if (filteredItems[i].id == item.id) {
+          filteredItems.removeAt(i);
+          break;
+        }
       }
     }
-    needOverlayRefresh = true;
-    _setState();
   }
 
   // Most parent of overlay widget
@@ -559,7 +541,6 @@ class _ChipDropdownState extends State<ChipDropdown> {
           constraints: const BoxConstraints(),
           onPressed: () {
             removeOverlayEntry();
-            isWidgetCurrenltyActive = false;
           },
           icon: const Icon(
             Icons.close,
@@ -655,11 +636,9 @@ class _ChipDropdownState extends State<ChipDropdown> {
     selectedItems.clear();
     selectedItems.add(item);
     filteredItems.remove(item);
-    needOverlayRefresh = false;
     _setState();
     removeOverlayEntry();
     onSelectionCallback();
-    if (widget.mode == ChipDropdownMode.focused) isWidgetCurrenltyActive = false;
   }
 
   // Calculate maximum allowed size for title in overlay.
@@ -708,6 +687,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
   // Replace current popup and add new one.
   refreshOverlayEntry() {
+    if (overlayEntry == null) return;
     removeOverlayEntry();
     showOverlay(context);
   }
@@ -731,23 +711,23 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
   // Load initial value for `SingleSelection` widget
   loadSingleSelectionInitialValue() {
-    if (widget.initialValue != null) {
-      selectedItems = List.from([widget.initialValue]);
+    filteredItems = List.from(widget.items);
+    if (widget.initialValue == null) return;
+    selectedItems = List.from([widget.initialValue]);
 
-      // Remove initial values from filtered items
-      filteredItems.removeWhere((element) => element.id == widget.initialValue!.id);
-    }
+    // Remove initial values from filtered items
+    filteredItems.removeWhere((element) => element.id == selectedItems.first.id);
   }
 
   // Load initial value for `MultiSelection` widget
   loadMultiSelectionInitialValue() {
-    if (widget.initialValues != null) {
-      selectedItems = List.from(widget.initialValues!);
+    filteredItems = List.from(widget.items);
+    if (widget.initialValues == null) return;
+    selectedItems = List.from(widget.initialValues!);
 
-      // Remove initial values from filtered items
-      for (var initialValue in widget.initialValues!) {
-        filteredItems.removeWhere((element) => element.id == initialValue.id);
-      }
+    // Remove initial values from filtered items
+    for (ChipDropdownItem item in selectedItems) {
+      filteredItems.removeWhere((element) => element.id == item.id);
     }
   }
 
@@ -764,7 +744,15 @@ class _ChipDropdownState extends State<ChipDropdown> {
   }
 
   // Check if the widget has received the necessary data to work properly.
-  handleInputErrors() {
+  inputValidation() {
+    /// Check for items with same id
+    for (ChipDropdownItem item in widget.items) {
+      if (widget.items.where((element) => element.id == item.id).length > 1) {
+        assert(false, 'Items must have unique id. Duplicate item found in list.');
+      }
+    }
+
+    /// Single selection ///
     /// To check if the initial value of `Single selection chip dropdown` is present in items list.
     if (widget.initialValue != null) {
       bool isFound = false;
@@ -779,6 +767,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
       assert(isFound, 'Initial value must be present in the dropdown items list');
     }
 
+    /// Multi selection ///
     /// To check if the initial values of `Multi selection chip dropdown` is present in items list.
     if (widget.initialValues != null) {
       bool isFound = false;
@@ -818,24 +807,15 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
   /// Internal SetStateCall.
   _setState() {
-    isSetSateCalledInternally = true;
+    isSetStateCalledInternally = true;
     setState(() {});
   }
 
   /// Update new values on external set state call.
   void updateNewValuesOnExternalSetState() {
     filterItems('');
-    if (widget.isMultiselectionMode) {
-      for (ChipDropdownItem initialValue in widget.initialValues ?? []) {
-        filteredItems.removeWhere(
-          (element) => element.id == initialValue.id,
-        );
-      }
-    } else {
-      filteredItems.removeWhere(
-        (element) => element.id == widget.initialValue?.id,
-      );
-    }
+    inputValidation();
+    _setState();
   }
 }
 
