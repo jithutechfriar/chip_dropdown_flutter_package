@@ -745,6 +745,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
   // Check if the widget has received the necessary data to work properly.
   inputValidation() {
+    /// Check for items with same id
     for (ChipDropdownItem item in widget.items) {
       if (widget.items.where((element) => element.id == item.id).length > 1) {
         assert(false, 'Items must have unique id. Duplicate item found in list.');
