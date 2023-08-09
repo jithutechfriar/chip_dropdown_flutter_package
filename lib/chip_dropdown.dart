@@ -444,6 +444,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
                                 },
                                 onChanged: (value) {
                                   filterItems(value);
+                                  _setState();
                                 },
                               ),
                             ),

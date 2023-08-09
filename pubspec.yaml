@@ -1,6 +1,6 @@
 name: chip_dropdown
 description: A new Flutter package project.
-version: 2.6.5
+version: 2.6.6
 homepage: https://github.com/jithutechfriar/chip_dropdown_flutter_package.git
 
 environment:
@@ -21,4 +21,3 @@ dev_dependencies:
   flutter_lints: ^2.0.0
 
 flutter:
-
