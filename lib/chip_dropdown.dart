@@ -814,6 +814,9 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
   /// Update new values on external set state call.
   void updateNewValuesOnExternalSetState() {
+    /// Update initial values.
+    if (widget.initialValues != null) selectedItems = widget.initialValues!;
+    if (widget.initialValue != null) selectedItems = [widget.initialValue!];
     filterItems('');
     inputValidation();
     _setState();
