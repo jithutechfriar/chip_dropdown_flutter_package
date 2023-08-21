@@ -499,6 +499,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
             decoration: const BoxDecoration(
