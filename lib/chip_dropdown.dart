@@ -32,6 +32,13 @@ enum ChipDropdownMode {
   focused
 }
 
+enum ChipOverlayPosition {
+  // Show overlay above the main widget
+  above,
+  // Show overlay below the main widget
+  below
+}
+
 class ChipDropdown extends StatefulWidget {
   ChipDropdown({
     super.key,
@@ -52,6 +59,7 @@ class ChipDropdown extends StatefulWidget {
     this.errorText,
     this.mode = ChipDropdownMode.normal,
     this.textFieldPadding,
+    this.overlayPosition = ChipOverlayPosition.below,
   });
   ChipDropdown.multiselection({
     super.key,
@@ -72,6 +80,7 @@ class ChipDropdown extends StatefulWidget {
     this.errorText,
     this.mode = ChipDropdownMode.normal,
     this.textFieldPadding,
+    this.overlayPosition = ChipOverlayPosition.below,
   }) {
     isMultiselectionMode = true;
   }
@@ -146,6 +155,9 @@ class ChipDropdown extends StatefulWidget {
 
   /// Padding for input text field.
   final EdgeInsetsGeometry? textFieldPadding;
+
+  /// Position of overlay with respect to the main widget
+  final ChipOverlayPosition overlayPosition;
 
   @override
   State<ChipDropdown> createState() => _ChipDropdownState();
@@ -314,7 +326,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
           child: CompositedTransformFollower(
             link: layerLink,
             showWhenUnlinked: false,
-            offset: Offset(0, -(widget.overlayHeight ?? overlayHeight) - mainWidgetHeight),
+            offset: getOverlayOffset(),
             child: Material(
               color: Colors.transparent,
               child: StatefulBuilder(
@@ -329,6 +341,15 @@ class _ChipDropdownState extends State<ChipDropdown> {
         ),
       ],
     );
+  }
+
+  /// Get overlay widget offset based on [ChipOverlayPosition]
+  Offset getOverlayOffset() {
+    if (widget.overlayPosition == ChipOverlayPosition.below) {
+      return Offset(0, overlaySize.height + 5);
+    } else {
+      return Offset(0, -(widget.overlayHeight ?? overlayHeight) - mainWidgetHeight);
+    }
   }
 
   // Widget that contains the details of selected items and an input text field to search for new items.
@@ -501,9 +522,9 @@ class _ChipDropdownState extends State<ChipDropdown> {
   // Most parent of overlay widget
   Widget overlayWidget() {
     return SizedBox(
-      height: (widget.overlayHeight ?? overlayHeight) + overlayCloseIconSize,
+      height: widget.overlayPosition == ChipOverlayPosition.below ? null : (widget.overlayHeight ?? overlayHeight) + overlayCloseIconSize,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: widget.overlayPosition == ChipOverlayPosition.below ? MainAxisAlignment.start : MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -521,7 +542,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: widget.overlayPosition == ChipOverlayPosition.below ? MainAxisAlignment.start : MainAxisAlignment.end,
               children: [
                 // Add close button at the top
                 if (widget.mode == ChipDropdownMode.normal) closeOverlayIcon(),
