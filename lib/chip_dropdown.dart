@@ -308,7 +308,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
           child: CompositedTransformFollower(
             link: layerLink,
             showWhenUnlinked: false,
-            offset: Offset(0, overlaySize.height + 5),
+            offset: Offset(0, -(widget.overlayHeight ?? overlayHeight)),
             child: Material(
               color: Colors.transparent,
               child: StatefulBuilder(
@@ -494,32 +494,42 @@ class _ChipDropdownState extends State<ChipDropdown> {
 
   // Most parent of overlay widget
   Widget overlayWidget() {
-    return Container(
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(2, 2),
-            blurRadius: 12,
-            color: Color.fromRGBO(0, 0, 0, 0.16),
-          )
-        ],
-      ),
+    return SizedBox(
+      height: widget.overlayHeight ?? overlayHeight,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Add close button at the top
-          if (widget.mode == ChipDropdownMode.normal) closeOverlayIcon(),
           Container(
-            constraints: BoxConstraints(maxHeight: widget.overlayHeight ?? overlayHeight),
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: generateOverlayWidgets(),
-              ),
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(2, 2),
+                  blurRadius: 12,
+                  color: Color.fromRGBO(0, 0, 0, 0.16),
+                )
+              ],
             ),
-          )
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // Add close button at the top
+                if (widget.mode == ChipDropdownMode.normal) closeOverlayIcon(),
+                Container(
+                  constraints: BoxConstraints(maxHeight: widget.overlayHeight ?? overlayHeight),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: generateOverlayWidgets(),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
         ],
       ),
     );
