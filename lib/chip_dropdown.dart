@@ -201,6 +201,12 @@ class _ChipDropdownState extends State<ChipDropdown> {
   // Width of main widget
   double? mainWidgetWidth;
 
+  // Height of main widget
+  double mainWidgetHeight = 40;
+
+  // Size of close icon in overlay
+  double overlayCloseIconSize = 34;
+
   // Detect if [build()] called by updating this widget or entirely rebuilding this widget from its parent outside.
   bool isSetStateCalledInternally = false;
 
@@ -308,7 +314,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
           child: CompositedTransformFollower(
             link: layerLink,
             showWhenUnlinked: false,
-            offset: Offset(0, -(widget.overlayHeight ?? overlayHeight)),
+            offset: Offset(0, -(widget.overlayHeight ?? overlayHeight) - mainWidgetHeight),
             child: Material(
               color: Colors.transparent,
               child: StatefulBuilder(
@@ -495,7 +501,7 @@ class _ChipDropdownState extends State<ChipDropdown> {
   // Most parent of overlay widget
   Widget overlayWidget() {
     return SizedBox(
-      height: widget.overlayHeight ?? overlayHeight,
+      height: (widget.overlayHeight ?? overlayHeight) + overlayCloseIconSize,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
